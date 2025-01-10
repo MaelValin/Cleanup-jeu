@@ -1367,6 +1367,7 @@ function end() {
             score = 0;
             player.remove();
             calque.remove();
+            
             gameOverText.remove();
             scoreTotalText.remove();
             scoreText.remove();
@@ -1375,6 +1376,23 @@ function end() {
             newStartButton.remove();
             text.remove();
             scoreText.remove();
+            for (let email of emails) {
+                email.remove();
+            }
+            emails = [];
+
+            for (let photo of photos) {
+                photo.remove();
+            }
+            photos = [];
+
+            for (let video of videos) {
+                video.remove();
+            }
+            for (let client of clients) {
+                client.remove();
+            }
+            clients = [];
 
             restarted = true;
             
@@ -1532,6 +1550,7 @@ function end() {
                 goButton.remove();
                 restartButtonpause.remove();
                 newStartButtonpause.remove();
+                
                 gamePaused = false;
                 pickupPrompt = false;
                 prompt.visible = false;
