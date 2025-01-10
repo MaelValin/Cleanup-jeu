@@ -10,6 +10,12 @@ let carried = {id: null, type: null,
 };
 
 let gamePaused = false;
+let restarted = false;
+let pickupPrompt = false;
+let prompt;
+
+let soundToggle = true;
+let musicToggle = true;
 
 let Karried = {
     id: null,
@@ -65,6 +71,82 @@ let totalscore = 0;
 
 let colorfont = "#464646";
 
+let ambianceSound;
+let musicSound;
+let finSound;
+let grabSound;
+let pauseSound;
+let poubelle1Sound;
+let poubelle2Sound;
+
+let downAnimation;
+let upAnimation;
+let rightAnimation;
+let leftAnimation;
+let walkdownAnimation;
+let walkleftAnimation;
+let walkrightAnimation;
+let walkupAnimation;
+
+let walkdownAnimationR;
+let walkleftAnimationR;
+let walkrightAnimationR;
+let walkupAnimationR;
+let assisgaucheAnimationR;
+let assisdroiteAnimationR;
+
+let walkdownAnimationB;
+let walkleftAnimationB;
+let walkrightAnimationB;
+let walkupAnimationB;
+let assisgaucheAnimationB;
+let assisdroiteAnimationB;
+
+let walkdownAnimationV;
+let walkleftAnimationV;
+let walkrightAnimationV;
+let walkupAnimationV;
+let assisgaucheAnimationV;
+let assisdroiteAnimationV;
+
+function preload(){
+    ambianceSound = loadSound("asset/ambiance.wav");
+    musicSound = loadSound("asset/music.mp3");
+    musicSound.setVolume(0.5);
+    finSound = loadSound("asset/fin.wav");
+    grabSound = loadSound("asset/grab.wav");
+    pauseSound = loadSound("asset/pause.wav");
+    pauseSound.setVolume(0.5);
+    poubelle1Sound = loadSound("asset/poubelle1.wav");
+    poubelle2Sound = loadSound("asset/poubelle2.wav");
+    poubelle2Sound.setVolume(0.3);
+
+    downAnimation = loadAni('asset/filledown.png');
+    upAnimation = loadAnimation('asset/filleup.png');
+    rightAnimation = loadAnimation('asset/filleright.png');
+    leftAnimation = loadAnimation('asset/filleleft.png');
+    walkdownAnimation = loadAnimation('asset/fille.png', { width: 64, height: 64, frames: [0,1,2] });
+    walkleftAnimation = loadAnimation('asset/fille.png', { width: 64, height: 64, frames: [6,7,8] });
+    walkrightAnimation = loadAnimation('asset/fille.png', { width: 64, height: 64, frames: [3,4,5] });
+    walkupAnimation = loadAnimation('asset/fille.png', { width: 64, height: 64, frames: [9,10,11] });
+
+
+
+    walkupAnimationR = loadAnimation('asset/fillerouge.png', { width: 64, height: 64, frames: [9,10,11] });
+    assisgaucheAnimationR = loadAnimation('asset/fillerougegauche.png');
+    assisdroiteAnimationR = loadAnimation('asset/fillerougedroite.png');
+
+
+   
+    walkupAnimationB = loadAnimation('asset/fillebleu.png', { width: 64, height: 64, frames: [9,10,11] });
+    assisgaucheAnimationB = loadAnimation('asset/fillebleugauche.png');
+    assisdroiteAnimationB = loadAnimation('asset/fillebleudroite.png');
+
+    
+    walkupAnimationV = loadAnimation('asset/fillevert.png', { width: 64, height: 64, frames: [9,10,11] });
+    assisgaucheAnimationV = loadAnimation('asset/fillevertgauche.png');
+    assisdroiteAnimationV = loadAnimation('asset/fillevertdroite.png');
+}
 
 function createBorders() {
     let borderTop = new Sprite(centerX, 110, canvasWidth, 10); // Create the Top border
@@ -149,7 +231,17 @@ function createBorders() {
 
 //start...............................................................
 function createStartButton() {
-
+    
+    
+    
+    /*new Canvas(canvasWidth, canvasHeight); 
+    background(220);
+    let backimg = new Sprite(canvasWidth / 2, canvasHeight / 2);
+    backimg.image = "asset/depart.png";
+    backimg.collider = "none";
+    backimg.layer = 1;*/
+    
+    
     
     let button = document.createElement("button");
     button.innerHTML = "Start";
@@ -161,6 +253,7 @@ function createStartButton() {
     button.style.fontFamily = "'Jersey 15', serif";
     button.style.borderRadius = "10px";
     button.style.transform = "translateX(-50%)";
+    button.style.zIndex = "1";
     document.body.appendChild(button);
 
 
@@ -175,11 +268,28 @@ function createStartButton() {
     buttonpara.style.fontFamily = "'Jersey 15', serif";
     buttonpara.style.borderRadius = "10px";
     buttonpara.style.transform = "translateX(-50%)";
+    buttonpara.style.zIndex = "1";
     document.body.appendChild(buttonpara);
+
+
+let backimg = document.createElement("img");
+backimg.src = "asset/depart.png";
+backimg.style.position = "absolute";
+backimg.style.top = "50%";
+backimg.style.left = "50%";
+backimg.style.width = "100%";
+backimg.style.objectFit = "cover";
+backimg.style.transform = "translate(-50%, -50%)";
+backimg.style.zIndex = "0";
+backimg.style.filter=" brightness(0.8)";
+document.body.appendChild(backimg);
+    
 
     button.addEventListener("click", () => {
         button.remove(); // Remove the button
         buttonpara.remove(); // Remove the button
+        backimg.remove();
+        //backimg.remove();
         runstart(); // Start the game
         loop(); // Start the update loop
 
@@ -189,6 +299,8 @@ function createStartButton() {
     buttonpara.addEventListener("click", () => {
         button.remove(); // Remove the button
         buttonpara.remove(); // Remove the button
+        
+        //backimg.remove();
         para(); 
     });
 }
@@ -401,6 +513,7 @@ function para() {
     checkbox.type = "checkbox";
     checkbox.style.width = "70px";
     checkbox.style.marginRight = "10px";
+    checkbox.checked = true;
 
     let label = document.createElement("label");
     label.innerHTML = "music";
@@ -414,6 +527,7 @@ function para() {
     // Add click event to the container to toggle the checkbox
     container6.addEventListener("click", () => {
         checkbox.checked = !checkbox.checked;
+        musicToggle = checkbox.checked;
     });
 
 
@@ -436,6 +550,7 @@ function para() {
     checkbox1.type = "checkbox";
     checkbox1.style.width = "70px";
     checkbox1.style.marginRight = "10px";
+    checkbox1.checked = true;
 
     let label1 = document.createElement("label");
     label1.innerHTML = "Sound";
@@ -449,6 +564,7 @@ function para() {
     // Add click event to the container to toggle the checkbox
     container7.addEventListener("click", () => {
         checkbox1.checked = !checkbox1.checked;
+        soundToggle = checkbox1.checked;
     });
 
 
@@ -597,6 +713,15 @@ function runstart() {
     backimage.collider = "none";
     backimage.layer = -10;
     backimage.scale=2.5;
+    
+    if (soundToggle){
+        ambianceSound.play();        
+    }
+
+    if (musicToggle){
+        musicSound.play();
+    }
+
     //start.............. remplacer setup par runstart
     timermillieseconde=0;
     timerseconde=30;
@@ -609,11 +734,18 @@ function runstart() {
     text.collider = "none";
     text.textFill = "white";
     text.layer=1000000;
+    
+    prompt = new Sprite(centerX, canvasHeight-50, 0, 0);
+    prompt.textSize = 24;
+    prompt.text = "Press 'E' to interact";
+    prompt.textColor = "white";
+    prompt.collider = "none";
+    prompt.layer = 1000000;
 
     //start..........................
     time = new Sprite(160, 45, 0, 0);
     time.textSize = 40;
-    time.text = "Times " +timerminute+ "min" + timermillieseconde+"s";
+    time.text = "Time : " +timerminute+ "min" + timermillieseconde+"s";
     time.collider = "none";
     time.textColor = "white";
     time.layer=1000000;
@@ -627,38 +759,37 @@ function runstart() {
     player.scale = 3;
     player.animation = 'down';
     player.layer = 10;
-    player.addAnimation('down', 'asset/filledown.png', { width: 64, height: 64 });
-    player.addAnimation('up', 'asset/filleup.png', { width: 64, height: 64 });
-    player.addAnimation('right', 'asset/filleright.png', { width: 64, height: 64 });
-    player.addAnimation('left', 'asset/filleleft.png', { width: 64, height: 64 });
-    player.addAnimation('walkdown', 'asset/fille.png', { width: 64, height: 64, frames: [0,1,2] });
-    player.addAnimation('walkleft', 'asset/fille.png', { width: 64, height: 64, frames: [6,7,8] });
-    player.addAnimation('walkright', 'asset/fille.png', { width: 64, height: 64, frames: [3,4,5] });
-    player.addAnimation('walkup', 'asset/fille.png', { width: 64, height: 64, frames: [9,10,11] });
+    player.addAnimation('down', downAnimation, { width: 64, height: 64 });
+    player.addAnimation('up', upAnimation, { width: 64, height: 64 });
+    player.addAnimation('right', rightAnimation, { width: 64, height: 64 });
+    player.addAnimation('left', leftAnimation, { width: 64, height: 64 });
+    player.addAnimation('walkdown', walkdownAnimation, { width: 64, height: 64});
+    player.addAnimation('walkleft', walkleftAnimation, { width: 64, height: 64});
+    player.addAnimation('walkright', walkrightAnimation, { width: 64, height: 64});
+    player.addAnimation('walkup', walkupAnimation, { width: 64, height: 64});
 
     createBorders(); // Create the borders
     createTables(); // Create the tables
     createTrashcans(); // Create the trashcans
 
     spawnClient(); // Spawn a client
-    clientSpawningRoutine(); // Start the client spawning routine
+    if (!restarted){
+        clientSpawningRoutine(); // Start the client spawning routine
+    }
 }
 
-function draw() {
-    background(220); // Set the background color to light gray
-    update();
-}
+
 
 let clicked = false;
 let pressed = false;
 function update() {
 
     Canvas(canvasWidth, canvasHeight);
-    background(220); 
+    background(0,0,0,0);
 
-    if (frameCount%60==0){
-        console.log("emails", emails, "photos", photos, "videos", videos);
-    }
+   
+    
+    
 
     //start ...............................................
     if (timerminute == 0 && timerseconde == 0) {
@@ -667,17 +798,21 @@ function update() {
         return; // Exit the function
     }
 
+    if (timerminute == 0 && timerseconde == 10 && soundToggle) {
+        finSound.play();
+    }
+
     if (timerseconde == 0 ) {
         timermillieseconde = 0;
         timerseconde = 60;
         timerminute--;
     } else {
-        if (timermillieseconde == 120) {
+        if (timermillieseconde == 60) {
             timermillieseconde = 0;
             timerseconde--;
         } else {
             timermillieseconde++;
-            time.text = "Temps " + timerminute + "min " + timerseconde + "s";
+            time.text = "Time : " + timerminute + "min " + timerseconde + "s";
         }
     }
 
@@ -754,11 +889,7 @@ function update() {
     
     if (!carrying) {
         player.color = 'white';
-        player.text = '';
-        player.textFill = 'white';
-        player.textSize = 40;
-        player.textWeight = 'bold'; 
-        player.text.y = player.y - 500;
+        pickupPrompt = false;
         
 
         // Calculate distance between player and each file
@@ -767,12 +898,12 @@ function update() {
             if (distanceToEmail < pickupRange) {
                 if (!carrying) {
                     player.color = 'yellow';
-                    player.text = 'E';
-                    
-                    
-                    
+                    pickupPrompt = true;
                     
                     if (kb.pressing('e')) {
+                        if (soundToggle){
+                            grabSound.play();
+                        }
                         carrying = true;
                         carried.type = "email";
                         carried.id = email.id;
@@ -791,8 +922,11 @@ function update() {
             if (distanceToPhoto < pickupRange) {
                 if (!carrying) {
                     player.color = 'yellow';
-                    player.text = 'E';
+                    pickupPrompt = true;
                     if (kb.pressing('e')) {
+                        if (soundToggle){
+                            grabSound.play();
+                        }
                         carrying = true;
                         carried.type = "photo";
                         carried.id = photo.id;
@@ -811,8 +945,11 @@ function update() {
             if (distanceToVideo < pickupRange) {
                 if (!carrying) {
                     player.color = 'yellow';
-                    player.text = 'E';
+                    pickupPrompt = true;
                     if (kb.pressing('e')) {
+                        if (soundToggle){
+                            grabSound.play();
+                        }
                         carrying = true;
                         carried.type = "video";
                         carried.id = video.id;
@@ -828,19 +965,19 @@ function update() {
     } else {
         if (distanceToTrashMail < pickupRange && carried.type == "email") {
             player.color = 'yellow';
-            player.text = 'E';
+            pickupPrompt = true;
         }
         else if (distanceToTrashPhotos < pickupRange && carried.type == "photo") {
             player.color = 'yellow';
-            player.text = 'E';
+            pickupPrompt = true;
         }
         else if (distanceToTrashVideos < pickupRange && carried.type == "video") {
             player.color = 'yellow';
-            player.text = 'E';
+            pickupPrompt = true;
         }
         else {            
             player.color = 'white';
-            player.text = '';
+            pickupPrompt = false;
         }
 
         if (carried.type == "email") {
@@ -871,6 +1008,10 @@ function update() {
             carrying = false;
             let email = emails.find(e => e.id === carried.id);
             if (email) {
+                if (soundToggle){
+                    poubelle1Sound.play();
+                    poubelle2Sound.play();
+                }
                 email.collected = false;
                 email.remove();
                 emails = emails.filter(e => e.id !== carried.id); // Remove from array
@@ -883,6 +1024,10 @@ function update() {
             carrying = false;
             let photo = photos.find(p => p.id === carried.id);
             if (photo) {
+                if (soundToggle){
+                    poubelle1Sound.play();
+                    poubelle2Sound.play();
+                }
                 photo.collected = false;
                 photo.remove();
                 photos = photos.filter(p => p.id !== carried.id); // Remove from array
@@ -895,6 +1040,10 @@ function update() {
             carrying = false;
             let video = videos.find(v => v.id === carried.id);
             if (video) {
+                if (soundToggle){
+                    poubelle1Sound.play();
+                    poubelle2Sound.play();
+                }
                 video.collected = false;
                 video.remove();
                 videos = videos.filter(v => v.id !== carried.id); // Remove from array
@@ -970,33 +1119,47 @@ function update() {
             return; // Exit the function
         }
     }
+
+    if (pickupPrompt){
+        prompt.visible = true;
+    }
+    else {
+        prompt.visible = false;
+    }
 }
 
 function spawnData(targetChair, client) {
     let data = floor(random(3)); // Randomly select a data type
     let trash;
 
-    if (data === 0) {
-        if (targetChair.side === 'left') {
-            trash = createEmail(targetChair.x + 50, targetChair.y);
-        } else {
-            trash = createEmail(targetChair.x - 50, targetChair.y);
-        }
-    } else if (data === 1) {
-        if (targetChair.side === 'left') {
-            trash = createPhoto(targetChair.x + 50, targetChair.y);
-        } else {
-            trash = createPhoto(targetChair.x - 50, targetChair.y);
-        }
-    } else if (data === 2) {
-        if (targetChair.side === 'left') {
-            trash = createVideo(targetChair.x + 50, targetChair.y);
-        } else {
-            trash = createVideo(targetChair.x - 50, targetChair.y);
-        }
-    }
+    // Wait until the client is seated
+    let checkIfSeated = setInterval(() => {
+        if (client.vel.x === 0 && client.vel.y === 0) {
+            clearInterval(checkIfSeated); // Stop checking
 
-    client.data = trash; // Associate the trash with the client
+            if (data === 0) {
+                if (targetChair.side === 'left') {
+                    trash = createEmail(targetChair.x + 50, targetChair.y);
+                } else {
+                    trash = createEmail(targetChair.x - 50, targetChair.y);
+                }
+            } else if (data === 1) {
+                if (targetChair.side === 'left') {
+                    trash = createPhoto(targetChair.x + 50, targetChair.y);
+                } else {
+                    trash = createPhoto(targetChair.x - 50, targetChair.y);
+                }
+            } else if (data === 2) {
+                if (targetChair.side === 'left') {
+                    trash = createVideo(targetChair.x + 50, targetChair.y);
+                } else {
+                    trash = createVideo(targetChair.x - 50, targetChair.y);
+                }
+            }
+
+            client.data = trash; // Associate the trash with the client
+        }
+    }, 100); // Check every 100ms
 }
 
 function spawnClient() {
@@ -1006,6 +1169,29 @@ function spawnClient() {
     client.collider = 'none'; // Make the client dynamic
     client.spawnTime = millis(); // Record the spawn time
     client.timeLimit = 5000; // Time limit for the client to wait
+    client.scale = 3;
+
+    let color = floor(random(3));
+    if (color === 0) {
+        client.addAnimation('assisgaucheV', assisgaucheAnimationV, { width: 64, height: 64 });
+        client.addAnimation('assisdroiteV', assisdroiteAnimationV, { width: 64, height: 64 });
+        client.addAnimation('walkupV', walkupAnimationV, { width: 64, height: 64 });
+        client.animation = 'walkupV';
+    } else if (color === 1) {
+        client.addAnimation('assisgaucheB', assisgaucheAnimationB, { width: 64, height: 64 });
+        client.addAnimation('assisdroiteB', assisdroiteAnimationB, { width: 64, height: 64 });
+        client.addAnimation('walkupB', walkupAnimationB, { width: 64, height: 64 });
+        client.animation = 'walkupB';
+    } else {
+        client.addAnimation('assisgaucheR', assisgaucheAnimationR, { width: 64, height: 64 });
+        client.addAnimation('assisdroiteR', assisdroiteAnimationR, { width: 64, height: 64 });
+        client.addAnimation('walkupR', walkupAnimationR, { width: 64, height: 64 });
+        client.animation = 'walkupR';
+    }
+
+    
+
+   
 
     // Select a random available chair to move to
     let availableChairs = chairs.filter(chair => !chair.occupied);
@@ -1014,6 +1200,40 @@ function spawnClient() {
         let targetChair = availableChairs[chairIndex];
         targetChair.occupied = true;
         client.targetChair = targetChair;
+        
+
+        if (color === 0) {
+            client.animation = 'walkupV';
+            setTimeout(() => {
+            if (targetChair.side === 'left') {
+                client.animation = 'assisgaucheV';
+            } else {
+                client.animation = 'assisdroiteV';
+            }
+            }, 2000);
+        } else if (color === 1) {
+            client.animation = 'walkupB';
+            setTimeout(() => {
+            if (targetChair.side === 'left') {
+                client.animation = 'assisgaucheB';
+            } else {
+                client.animation = 'assisdroiteB';
+            }
+            }, 2000);
+        } else {
+            client.animation = 'walkupR';
+            setTimeout(() => {
+            if (targetChair.side === 'left') {
+                client.animation = 'assisgaucheR';
+            } else {
+                client.animation = 'assisdroiteR';
+            }
+            }, 2000);
+        }
+        
+    
+
+        
         spawnData(targetChair, client); // Pass the client to spawnData
         clients.push(client); // Add the client to the clients array
     }
@@ -1091,8 +1311,8 @@ function end() {
         co2Text.style.textAlign = "center";
         co2Text.style.color = "white";
         co2Text.style.transform = "translate(-50%, -50%)";
-        let scoreco2 = (score * 1.4).toFixed(1);
-        co2Text.innerHTML = "You have removed " + scoreco2 + "kg of CO2";
+        let scoreco2 = (score * 0.015).toFixed(1);
+        co2Text.innerHTML = "You have removed " + scoreco2 + "g of CO2";
         document.body.appendChild(co2Text);
     
     
@@ -1145,7 +1365,7 @@ function end() {
             timerseconde=0;
             timerminute=0;
             score = 0;
-            
+            player.remove();
             calque.remove();
             gameOverText.remove();
             scoreTotalText.remove();
@@ -1155,6 +1375,8 @@ function end() {
             newStartButton.remove();
             text.remove();
             scoreText.remove();
+
+            restarted = true;
             
             runstart(); // Start the game
             loop(); // Start the update loop
@@ -1163,6 +1385,10 @@ function end() {
     }
     
     function pause() {
+
+        if (soundToggle){
+            pauseSound.play();
+        }
        
         // Remove all elements
         gamePaused = true;
@@ -1190,7 +1416,7 @@ function end() {
             gameOverText.style.fontSize = "40px";
             gameOverText.style.color = "white";
             gameOverText.style.transform = "translate(-50%, -50%)";
-            gameOverText.innerHTML = "You have give up";
+            gameOverText.innerHTML = "Game Paused";
             document.body.appendChild(gameOverText);
         
         
@@ -1205,14 +1431,14 @@ function end() {
             scoreTextpause.style.fontSize = "80px";
             scoreTextpause.style.color = "white";
             scoreTextpause.style.transform = "translate(-50%, -50%)";
-            scoreTextpause.innerHTML = "Actual Score: " + score;
+            scoreTextpause.innerHTML = "Current Score: " + score;
             document.body.appendChild(scoreTextpause);
         
     
     
     
             let goButton = document.createElement("button");
-            goButton.innerHTML = "Go in the game";
+            goButton.innerHTML = "Back to the game";
             goButton.id = "goButton";
             goButton.style.position = "absolute";
             goButton.style.bottom = "40%";
@@ -1225,6 +1451,7 @@ function end() {
             document.body.appendChild(goButton);
         
             goButton.addEventListener("click", () => {
+                gamePaused = false;
                 goButton.remove();
                 calque.remove();
                 gameOverText.remove();
@@ -1253,7 +1480,8 @@ function end() {
                 timerseconde=0;
                 timerminute=0;
                 score = 0;
-                gamePaused = false;
+                gamePaused = false;                
+                restarted = false;
                 location.reload();
             });
         
@@ -1277,7 +1505,27 @@ function end() {
                 timerseconde = 0;
                 timerminute = 0;
                 score = 0;
-               
+                player.remove();
+
+                for (let email of emails) {
+                    email.remove();
+                }
+                emails = [];
+
+                for (let photo of photos) {
+                    photo.remove();
+                }
+                photos = [];
+
+                for (let video of videos) {
+                    video.remove();
+                }
+
+                for (let client of clients) {
+                    client.remove();
+                }
+                clients = [];
+
                 calque.remove();
                 gameOverText.remove();
                 scoreTextpause.remove();
@@ -1285,6 +1533,10 @@ function end() {
                 restartButtonpause.remove();
                 newStartButtonpause.remove();
                 gamePaused = false;
+                pickupPrompt = false;
+                prompt.visible = false;
+                
+                restarted = true;
                 
                 runstart(); // Start the game
                 loop(); // Start the update loop
